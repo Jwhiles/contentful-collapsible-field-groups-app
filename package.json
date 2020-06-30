@@ -3,7 +3,25 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@contentful/field-editor-shared": "^0.11.0",
     "@contentful/field-editor-single-line": "^0.8.4",
+    "@contentful/field-editor-number": "^0.8.4",
+    "@contentful/field-editor-boolean": "^0.8.4",
+    "@contentful/field-editor-date": "^0.8.4",
+    "@contentful/field-editor-location": "^0.8.4",
+    "@contentful/field-editor-json": "^0.8.4",
+    "@contentful/field-editor-multiple-line": "^0.8.4",
+    "@contentful/field-editor-tags": "^0.8.4",
+    "@contentful/field-editor-slug": "^0.8.4",
+    "@contentful/field-editor-dropdown": "^0.8.4",
+    "@contentful/field-editor-url": "^0.8.4",
+    "@contentful/field-editor-radio": "^0.8.4",
+    "@contentful/field-editor-rating": "^0.8.4",
+    "@contentful/field-editor-checkbox": "^0.8.4",
+    "@contentful/field-editor-list": "^0.8.4",
+    "@contentful/field-editor-reference": "^0.8.4",
+    "@contentful/field-editor-rich-text": "^0.8.4",
+    "@contentful/field-editor-markdown": "^0.8.4",
     "@contentful/field-editor-test-utils": "^0.6.4",
     "@contentful/forma-36-fcss": "^0.0.35",
     "@contentful/forma-36-react-components": "^3.39.7",
@@ -20,7 +38,10 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",
-    "typescript": "^3.8.0"
+    "react-sortable-hoc": "^1.11.0",
+    "typescript": "^3.8.0",
+    "emotion": "^10.0.17",
+    "prop-types": "^15.7.2"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -37,15 +58,7 @@
     "extends": "react-app"
   },
   "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "production": [">0.2%", "not dead", "not op_mini all"],
+    "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
   }
 }
