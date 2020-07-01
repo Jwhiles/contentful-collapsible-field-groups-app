@@ -1,12 +1,6 @@
 import * as React from "react";
-import { render } from "react-dom";
 import { TextLink, Modal } from "@contentful/forma-36-react-components";
-import {
-  init,
-  locations,
-  EditorExtensionSDK,
-  DialogExtensionSDK,
-} from "contentful-ui-extensions-sdk";
+import { EditorExtensionSDK } from "contentful-ui-extensions-sdk";
 import "@contentful/forma-36-react-components/dist/styles.css";
 import "@contentful/forma-36-fcss/dist/styles.css";
 import "./index.css";
@@ -16,10 +10,7 @@ import { findUnassignedFields, AppContext, SDKContext } from "./shared";
 import { useAppState } from "./state";
 import { ActionTypes, FieldType } from "./types";
 import { Field } from "./Field";
-import { renderMarkdownDialog } from "@contentful/field-editor-markdown";
-import { renderRichTextDialog } from "@contentful/field-editor-rich-text";
 import styles from "./styles";
-import { createClient } from "contentful-management";
 
 interface AppProps {
   sdk: EditorExtensionSDK;

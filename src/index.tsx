@@ -1,9 +1,9 @@
-import React from "react";
+import * as React from "react";
 import { render } from "react-dom";
-
 import {
   AppExtensionSDK,
   BaseExtensionSDK,
+  DialogExtensionSDK,
   EditorExtensionSDK,
   init,
   locations,
@@ -11,9 +11,13 @@ import {
 import "@contentful/forma-36-react-components/dist/styles.css";
 import "@contentful/forma-36-fcss/dist/styles.css";
 import "./index.css";
-
-import Config from "./ConfigScreen";
+import { renderMarkdownDialog } from "@contentful/field-editor-markdown";
+import { renderRichTextDialog } from "@contentful/field-editor-rich-text";
 import EntryEditor from "./EntryEditor";
+
+interface AppProps {
+  sdk: EditorExtensionSDK;
+}
 
 interface AppInstallationParameters {
   defaultValue: string;
@@ -27,15 +31,23 @@ interface ConfigState {
   parameters: AppInstallationParameters;
 }
 
+function renderAtRoot(element: JSX.Element) {
+  render(element, document.getElementById("root"));
+}
+
 init((sdk: BaseExtensionSDK) => {
   const root = document.getElementById("root");
 
-  // Select a component depending on a location in which the app is rendered.
-  if (sdk.location.is(locations.LOCATION_APP_CONFIG)) {
-    // Render the component, passing the SDK down.
-    render(<Config sdk={sdk as AppExtensionSDK} />, root);
-  } else if (sdk.location.is(locations.LOCATION_ENTRY_EDITOR)) {
+  if (sdk.location.is(locations.LOCATION_ENTRY_EDITOR)) {
     // Depending on the location the SDK will have different methods
     render(<EntryEditor sdk={sdk as EditorExtensionSDK} />, root);
+  } else if (sdk.location.is(locations.LOCATION_DIALOG)) {
+    const dialogSdk = sdk as DialogExtensionSDK;
+    const invocationParams = sdk.parameters.invocation as { type: string };
+    if (invocationParams.type.startsWith("markdown")) {
+      renderAtRoot(renderMarkdownDialog(dialogSdk as any));
+    } else if (invocationParams.type.startsWith("rich-text")) {
+      renderAtRoot(renderRichTextDialog(dialogSdk as any));
+    }
   }
 });
