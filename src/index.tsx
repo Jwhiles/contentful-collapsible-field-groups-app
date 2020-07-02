@@ -14,6 +14,7 @@ import "./index.css";
 import { renderMarkdownDialog } from "@contentful/field-editor-markdown";
 import { renderRichTextDialog } from "@contentful/field-editor-rich-text";
 import EntryEditor from "./EntryEditor";
+import Config from "./ConfigScreen";
 
 interface AppProps {
   sdk: EditorExtensionSDK;
@@ -38,7 +39,9 @@ function renderAtRoot(element: JSX.Element) {
 init((sdk: BaseExtensionSDK) => {
   const root = document.getElementById("root");
 
-  if (sdk.location.is(locations.LOCATION_ENTRY_EDITOR)) {
+  if (sdk.location.is(locations.LOCATION_APP_CONFIG)) {
+    renderAtRoot(<Config sdk={sdk as AppExtensionSDK} />);
+  } else if (sdk.location.is(locations.LOCATION_ENTRY_EDITOR)) {
     // Depending on the location the SDK will have different methods
     render(<EntryEditor sdk={sdk as EditorExtensionSDK} />, root);
   } else if (sdk.location.is(locations.LOCATION_DIALOG)) {

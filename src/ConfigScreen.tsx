@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
-import { AppExtensionSDK } from 'contentful-ui-extensions-sdk';
-import { TextField, Heading, Form, Workbench } from '@contentful/forma-36-react-components';
-import { css } from 'emotion';
+import React, { Component } from "react";
+import { AppExtensionSDK } from "contentful-ui-extensions-sdk";
+import { TextField, Heading, Form, Workbench } from "@contentful/forma-36-react-components";
+import { css } from "emotion";
 
 export interface AppInstallationParameters {
   defaultValue: string;
@@ -18,7 +18,7 @@ interface ConfigState {
 export default class Config extends Component<ConfigProps, ConfigState> {
   constructor(props: ConfigProps) {
     super(props);
-    this.state = { parameters: { defaultValue: '' } };
+    this.state = { parameters: { defaultValue: "" } };
 
     // `onConfigure` allows to configure a callback to be
     // invoked when a user attempts to install the app or update
@@ -40,7 +40,7 @@ export default class Config extends Component<ConfigProps, ConfigState> {
 
   render() {
     return (
-      <Workbench className={css({ margin: '80px' })}>
+      <Workbench className={css({ margin: "80px" })}>
         <Form>
           <Heading>App Config</Heading>
           <TextField
@@ -58,13 +58,39 @@ export default class Config extends Component<ConfigProps, ConfigState> {
   }
 
   async onConfigure() {
-    // This method will be called when a user clicks on "Install"
-    // or "Save" in the configuration screen.
-    // for more details see https://www.contentful.com/developers/docs/extensibility/ui-extensions/sdk-reference/#register-an-app-configuration-hook
+    const { space, ids } = this.props.sdk;
+    const editorInterfaces = await space.getEditorInterfaces();
+
+    const appId = ids.app;
+
+    const appIncludedInEditors = (appId: any, editorInterface: any) => {
+      if (editorInterface.editor) {
+        return appId === editorInterface.editor.widgetId;
+      } else if (editorInterface.editors) {
+        return editorInterface.editors.some(({ widgetId }: any) => widgetId === appId);
+      }
+    };
+
+    const contentTypesUsingApp = editorInterfaces.items.reduce(
+      (contentTypes, editorInterface: any) => {
+        if (appIncludedInEditors(appId, editorInterface)) {
+          const contentTypeId = editorInterface.sys?.contentType?.sys?.id;
+          return contentTypes.concat(contentTypeId);
+        }
+        return contentTypes;
+      },
+      []
+    );
+
+    const EditorInterface = contentTypesUsingApp.reduce((edInt, contentTypeId) => {
+      return { ...edInt, [contentTypeId]: { editor: true } };
+    }, {});
 
     return {
-      // Parameters to be persisted as the app configuration.
-      parameters: this.state.parameters
+      parameters: this.state.parameters,
+      targetState: {
+        EditorInterface,
+      },
     };
   }
 }
