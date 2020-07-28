@@ -6,19 +6,26 @@ import {
   Workbench,
   Select,
   Option,
+  TextLink,
+  Modal,
 } from "@contentful/forma-36-react-components";
+import { useAppState } from "./state";
 import { css } from "emotion";
+import { FieldGroupsEditor } from "./FieldGroupsEditor";
+import { ActionTypes, FieldType } from "./types";
+import { findUnassignedFields, AppContext, SDKContext } from "./shared";
+import styles from "./styles";
 
-export interface AppInstallationParameters {
-  defaultValue: string;
-}
+// export interface AppInstallationParameters {
+//
+// }
 
 interface ConfigProps {
   sdk: AppExtensionSDK;
 }
 
 interface ConfigState {
-  parameters: AppInstallationParameters;
+  parameters: any;
   contentTypes: any[];
   selectedContentType: string;
 }
@@ -29,7 +36,7 @@ export default class Config extends Component<ConfigProps, ConfigState> {
     this.state = {
       contentTypes: [],
       selectedContentType: "",
-      parameters: { defaultValue: "" },
+      parameters: {},
     };
 
     // `onConfigure` allows to configure a callback to be
@@ -75,8 +82,10 @@ export default class Config extends Component<ConfigProps, ConfigState> {
   async componentDidMount() {
     // Get current parameters of the app.
     // If the app is not installed yet, `parameters` will be `null`.
-    const parameters: AppInstallationParameters | null = await this.props.sdk.app.getParameters();
+    const parameters: any | null = await this.props.sdk.app.getParameters();
     const contentTypes = await this.getContentTypesUsingEditor();
+
+    console.log(this.props.sdk.parameters);
 
     this.setState(
       parameters
@@ -99,30 +108,23 @@ export default class Config extends Component<ConfigProps, ConfigState> {
       <Workbench className={css({ margin: "80px" })}>
         <Form>
           <Heading>Field Group Set Up Config</Heading>
-          <Select
-            value={this.state.selectedContentType}
-            onChange={(e: any) => {
-              // @ts-ignore
-              this.setState({ selectedContentType: e.target.value });
-            }}
-          >
-            {this.state.contentTypes.map((ct) => (
-              <Option key={ct.sys.id} value={ct.sys.id}>
-                {ct.name}
-              </Option>
-            ))}
-          </Select>
+          {this.state.contentTypes.map((ct) => (
+            <div key={ct.id}>
+              <Heading>{ct.name}</Heading>
+
+              <Whatever
+                update={(result: any) => {
+                  const parameters = { ...this.state.parameters, ...result };
+                  this.setState({ parameters });
+                }}
+                contentType={ct}
+                parameters={this.state.parameters}
+              />
+            </div>
+          ))}
         </Form>
-        <div>
-          here appears the group editors for selected thing{" "}
-          <span>{this.getInterface(this.state.selectedContentType)}</span>
-        </div>
       </Workbench>
     );
-  }
-
-  getInterface(x: string): string {
-    return this.state.contentTypes.find((ct) => ct.sys.id === x)?.name ?? "";
   }
 
   async onConfigure() {
@@ -141,7 +143,6 @@ export default class Config extends Component<ConfigProps, ConfigState> {
       }
     };
 
-    console.log("I need to set up the tabs and stuff better");
     const contentTypesUsingApp = editorInterfaces.items.reduce(
       (contentTypes, editorInterface: any) => {
         if (appIncludedInEditors(appId, editorInterface)) {
@@ -168,3 +169,51 @@ export default class Config extends Component<ConfigProps, ConfigState> {
     };
   }
 }
+
+const Whatever = ({ contentType, update, parameters }: any) => {
+  const contentId = contentType.sys.id;
+  const spaceId = contentType.sys.space?.sys.id;
+  const environmentId = contentType.sys.environment?.sys.id;
+
+  // move this up a bit..
+  const [state, dispatch] = useAppState(
+    contentType.fields,
+    `${contentId}-${spaceId}-${environmentId}`,
+    contentType.sys.updatedAt,
+    parameters
+  );
+
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+  const closeDialog = () => {
+    update({ [`${contentId}-${spaceId}-${environmentId}`]: state });
+    setDialogOpen(false);
+  };
+  const openDialog = () => setDialogOpen(true);
+
+  return (
+    <AppContext.Provider value={{ state, dispatch }}>
+      <TextLink
+        icon="Edit"
+        className={styles.editGroupsButton}
+        onClick={openDialog}
+      >
+        Edit field groups
+      </TextLink>
+      <Modal size="large" isShown={dialogOpen} onClose={closeDialog}>
+        {() => (
+          <React.Fragment>
+            <Modal.Header onClose={closeDialog} title="Edit field groups" />
+            <FieldGroupsEditor
+              addGroup={() =>
+                dispatch({ type: ActionTypes.CREATE_FIELD_GROUP })
+              }
+              fieldGroups={state.fieldGroups}
+              onClose={closeDialog}
+              contentType={contentType}
+            />
+          </React.Fragment>
+        )}
+      </Modal>
+    </AppContext.Provider>
+  );
+};

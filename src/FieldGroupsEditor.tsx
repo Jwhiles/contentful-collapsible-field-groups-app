@@ -1,4 +1,4 @@
-import * as React from 'react';
+import * as React from "react";
 import {
   Modal,
   Button,
@@ -14,14 +14,19 @@ import {
   Paragraph,
   IconButton,
   CardDragHandle,
-} from '@contentful/forma-36-react-components';
-import { findUnassignedFields, AppContext, SDKContext } from './shared';
-import { FieldType, FieldGroupType } from './types';
-import { ActionTypes } from './types';
-import styles from './styles';
-import { SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
+} from "@contentful/forma-36-react-components";
+import { findUnassignedFields, AppContext } from "./shared";
+import { FieldType, FieldGroupType } from "./types";
+import { ActionTypes } from "./types";
+import styles from "./styles";
+import {
+  SortableContainer,
+  SortableElement,
+  SortableHandle,
+} from "react-sortable-hoc";
 
 interface FieldGroupsEditorProps {
+  contentType: any;
   fieldGroups: FieldGroupType[];
   addGroup: () => void;
   onClose: () => void;
@@ -32,10 +37,19 @@ const DragHandle = SortableHandle(() => (
 ));
 
 const SortableFieldItem = SortableElement(
-  ({ field, groupId }: { field: FieldType; groupId: string }) => {
+  ({
+    field,
+    groupId,
+    contentType,
+  }: {
+    field: FieldType;
+    groupId: string;
+    contentType: any;
+  }) => {
     const { dispatch } = React.useContext(AppContext);
-    const sdk = React.useContext(SDKContext);
-    const fieldDetails = sdk.contentType.fields.find(({ id }) => id === field.id);
+    const fieldDetails = contentType.fields.find(
+      ({ id }: any) => id === field.id
+    );
 
     return (
       <Card className={styles.card}>
@@ -47,7 +61,7 @@ const SortableFieldItem = SortableElement(
         <IconButton
           label="Remove field"
           buttonType="negative"
-          iconProps={{ icon: 'Close' }}
+          iconProps={{ icon: "Close" }}
           onClick={() =>
             dispatch({
               type: ActionTypes.REMOVE_FIELD_FROM_GROUP,
@@ -62,10 +76,24 @@ const SortableFieldItem = SortableElement(
 );
 
 const SortableFieldList = SortableContainer(
-  ({ items, groupId }: { items: FieldType[]; groupId: string }) => (
+  ({
+    items,
+    groupId,
+    contentType,
+  }: {
+    items: FieldType[];
+    groupId: string;
+    contentType: any;
+  }) => (
     <ul className={styles.listContainer}>
       {items.map((field: FieldType, index: number) => (
-        <SortableFieldItem groupId={groupId} key={`item-${field.id}`} index={index} field={field} />
+        <SortableFieldItem
+          contentType={contentType}
+          groupId={groupId}
+          key={`item-${field.id}`}
+          index={index}
+          field={field}
+        />
       ))}
     </ul>
   )
@@ -73,18 +101,21 @@ const SortableFieldList = SortableContainer(
 
 export class FieldGroupsEditor extends React.Component<FieldGroupsEditorProps> {
   render() {
-    const { fieldGroups } = this.props;
+    const { fieldGroups, contentType } = this.props;
 
     return (
       <React.Fragment>
         <div className={styles.controls}>
-          <HelpText>Group fields to seperate concerns in the entry editor</HelpText>
+          <HelpText>
+            Group fields to seperate concerns in the entry editor
+          </HelpText>
           <div>
             <Button onClick={this.props.addGroup}>Add Group</Button>
             <Button
               className={styles.saveButton}
               buttonType="positive"
-              onClick={this.props.onClose}>
+              onClick={this.props.onClose}
+            >
               Save
             </Button>
           </div>
@@ -92,6 +123,7 @@ export class FieldGroupsEditor extends React.Component<FieldGroupsEditorProps> {
         <Modal.Content>
           {fieldGroups.map(({ name, fields, id }, index) => (
             <FieldGroupEditor
+              contentType={contentType}
               first={index === 0}
               last={index === fieldGroups.length - 1}
               key={id}
@@ -107,6 +139,7 @@ export class FieldGroupsEditor extends React.Component<FieldGroupsEditorProps> {
 }
 
 interface FieldGroupProps {
+  contentType: any;
   first: boolean;
   last: boolean;
   name: string;
@@ -115,6 +148,7 @@ interface FieldGroupProps {
 }
 
 const FieldGroupEditor: React.FC<FieldGroupProps> = ({
+  contentType,
   first,
   last,
   name,
@@ -141,7 +175,13 @@ const FieldGroupEditor: React.FC<FieldGroupProps> = ({
     }
   };
 
-  const onSortEnd = ({ oldIndex, newIndex }: { oldIndex: number; newIndex: number }) => {
+  const onSortEnd = ({
+    oldIndex,
+    newIndex,
+  }: {
+    oldIndex: number;
+    newIndex: number;
+  }) => {
     dispatch({
       type: ActionTypes.MOVE_FIELD_IN_GROUP,
       groupId,
@@ -160,15 +200,23 @@ const FieldGroupEditor: React.FC<FieldGroupProps> = ({
         value={name}
       />
       <FieldGroup>
-        <FormLabel htmlFor="" className={styles.formLabel}>Fields</FormLabel>
+        <FormLabel htmlFor="" className={styles.formLabel}>
+          Fields
+        </FormLabel>
         <Dropdown
           isOpen={dropdownOpen}
           onClose={closeDropdown}
           toggleElement={
-            <Button size="small" buttonType="muted" onClick={openDropdown} indicateDropdown>
+            <Button
+              size="small"
+              buttonType="muted"
+              onClick={openDropdown}
+              indicateDropdown
+            >
               Select a field to add
             </Button>
-          }>
+          }
+        >
           <DropdownList>
             {unassignedFields.map(({ id, name }: FieldType) => (
               <DropdownListItem
@@ -181,7 +229,8 @@ const FieldGroupEditor: React.FC<FieldGroupProps> = ({
                   });
                   closeDropdown();
                 }}
-                key={id}>
+                key={id}
+              >
                 {name}
               </DropdownListItem>
             ))}
@@ -189,7 +238,10 @@ const FieldGroupEditor: React.FC<FieldGroupProps> = ({
         </Dropdown>
       </FieldGroup>
       <SortableFieldList
-        distance={1 /* this hack is to allow buttons in the drag containers to work*/}
+        contentType={contentType}
+        distance={
+          1 /* this hack is to allow buttons in the drag containers to work*/
+        }
         onSortEnd={onSortEnd}
         items={fields}
         groupId={groupId}
@@ -199,14 +251,20 @@ const FieldGroupEditor: React.FC<FieldGroupProps> = ({
           className={styles.fieldGroupConfigurationTextLink}
           linkType="negative"
           icon="Close"
-          onClick={() => dispatch({ type: ActionTypes.DELETE_FIELD_GROUP, groupId })}>
+          onClick={() =>
+            dispatch({ type: ActionTypes.DELETE_FIELD_GROUP, groupId })
+          }
+        >
           Remove
         </TextLink>
         {!last ? (
           <TextLink
             className={styles.fieldGroupConfigurationTextLink}
             icon="ChevronDown"
-            onClick={() => dispatch({ type: ActionTypes.MOVE_FIELD_GROUP_DOWN, groupId })}>
+            onClick={() =>
+              dispatch({ type: ActionTypes.MOVE_FIELD_GROUP_DOWN, groupId })
+            }
+          >
             Move down
           </TextLink>
         ) : null}
@@ -214,7 +272,10 @@ const FieldGroupEditor: React.FC<FieldGroupProps> = ({
           <TextLink
             className={styles.fieldGroupConfigurationTextLink}
             icon="ChevronUp"
-            onClick={() => dispatch({ type: ActionTypes.MOVE_FIELD_GROUP_UP, groupId })}>
+            onClick={() =>
+              dispatch({ type: ActionTypes.MOVE_FIELD_GROUP_UP, groupId })
+            }
+          >
             Move up
           </TextLink>
         ) : null}
@@ -222,4 +283,3 @@ const FieldGroupEditor: React.FC<FieldGroupProps> = ({
     </div>
   );
 };
-
