@@ -193,7 +193,6 @@ const UnassignedContentType = ({
       >
         Use custom editor with this content type
       </TextLink>
-      yo
     </div>
   );
 };
