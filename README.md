@@ -13,6 +13,7 @@ yarn && yarn configure
 this will install the required dependencies, then walk you through the process of setting up your app with Contentful.
 
 When asked to `Select where your app can be rendered` please select `Entry Editor`.
+![render location selection](screenshots/config.png)
 
 Once your app definition is created you can run the code with
 
@@ -21,7 +22,8 @@ yarn start
 ```
 
 then navigate to the app management section of your contentful space and select the app to install it.
-** screenshots here **
+![contentful menu](screenshots/menu.png)
+![contentful menu](screenshots/app.png)
 
 You will be presented with install screen - hit install at the top right of the screen, then you will be able to configure the app.
 
