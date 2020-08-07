@@ -119,7 +119,6 @@ export default class Config extends Component<ConfigProps, ConfigState> {
         <Form>
           <Heading>Field Group Set Up Config</Heading>
           <Subheading>Content Types with collapsible editor</Subheading>
-          <Help />
           {this.state.contentTypes.map((ct, idx) => (
             <div key={ct.id}>
               <Heading>{ct.name}</Heading>
@@ -261,29 +260,5 @@ const AssignedContentType = ({
         )}
       </Modal>
     </AppContext.Provider>
-  );
-};
-
-const Help = () => {
-  const [dialogOpen, setDialogOpen] = React.useState(false);
-
-  return (
-    <div>
-      <TextLink onClick={() => setDialogOpen(true)}>Help</TextLink>
-      <Modal
-        size="large"
-        isShown={dialogOpen}
-        onClose={() => setDialogOpen(false)}
-      >
-        {() => (
-          <React.Fragment>
-            <Modal.Header onClose={() => setDialogOpen(false)} title="Help" />
-            <Modal.Content>
-              <Paragraph>blah blah blah</Paragraph>
-            </Modal.Content>
-          </React.Fragment>
-        )}
-      </Modal>
-    </div>
   );
 };

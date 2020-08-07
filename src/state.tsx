@@ -139,10 +139,5 @@ export const useAppState = (
     }
   );
 
-  // On each state change save the new state in local storage
-  // React.useEffect(() => {
-  //   localStorage.setItem(storageId, JSON.stringify(state));
-  // }, [state, storageId]);
-
   return [state, dispatch];
 };

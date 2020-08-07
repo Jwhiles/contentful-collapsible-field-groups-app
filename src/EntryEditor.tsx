@@ -65,17 +65,5 @@ const Entry: React.FunctionComponent<AppProps> = (props: AppProps) => {
     </SDKContext.Provider>
   );
 };
-// const Entry = ({ sdk }: { sdk: EditorExtensionSDK}) => {
-//   const installation = sdk.parameters.installation as AppInstallationParameters;
-
-//   return (
-//     <div>
-//       <Button onClick={() => sdk.field.setValue(installation.defaultValue)}>
-//         Click to set to default value of {installation.defaultValue}
-//       </Button>
-//       <SingleLineEditor locales={sdk.locales} field={sdk.field} />
-//     </div>
-//   );
-// };
 
 export default Entry;
