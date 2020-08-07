@@ -4,6 +4,26 @@ The aim of this App is to simplify the process of editing complicated content ty
 It provides a custom editor interface for Contentful.
 The editor allows fields to be grouped together into collapsible sections. 
 
+## Setup
+
+To use this app, first ensure you have up to date versions of node.js and yarn installed then in your terminal run:
+``` sh
+yarn && yarn configure
+```
+this will install the required dependencies, then walk you through the process of setting up your app with Contentful.
+
+When asked to `Select where your app can be rendered` please select `Entry Editor`.
+
+Once your app definition is created you can run the code with
+
+``` sh
+yarn start
+```
+
+then navigate to the app management section of your contentful space and select the app to install it.
+** screenshots here **
+
+You will be presented with install screen - hit install at the top right of the screen, then you will be able to configure the app.
 
 
 

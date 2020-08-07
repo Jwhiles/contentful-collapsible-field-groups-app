@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { AppExtensionSDK } from "contentful-ui-extensions-sdk";
 import {
   Heading,
+  SectionHeading,
   Form,
   Workbench,
   TextLink,
@@ -146,10 +147,10 @@ export default class Config extends Component<ConfigProps, ConfigState> {
       <Workbench className={css({ margin: "80px" })}>
         <Form>
           <Heading>Field Group Set Up Config</Heading>
-          <Subheading>Content Types with collapsible editor</Subheading>
+          <Subheading>Content Types with collapsible editor:</Subheading>
           {this.state.contentTypes.map((ct, idx) => (
             <div key={ct.id}>
-              <Heading>{ct.name}</Heading>
+              <SectionHeading>{ct.name}</SectionHeading>
               <AssignedContentType
                 update={(result: any) => {
                   const parameters = { ...this.state.parameters, ...result };
@@ -170,9 +171,10 @@ export default class Config extends Component<ConfigProps, ConfigState> {
             </div>
           ))}
 
+          <Subheading>Other Content Types:</Subheading>
           {this.state.otherContentTypes.map((ct, idx) => (
             <div key={ct.id}>
-              <Heading>{ct.name}</Heading>
+              <SectionHeading>{ct.name}</SectionHeading>
               <UnassignedContentType
                 assignEditor={() => {
                   const { contentTypes, otherContentTypes } = this.state;
