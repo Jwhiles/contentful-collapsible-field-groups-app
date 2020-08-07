@@ -1,3 +1,12 @@
+# Collapsible field groups app
+
+The aim of this App is to simplify the process of editing complicated content types.
+It provides a custom editor interface for Contentful.
+The editor allows fields to be grouped together into collapsible sections. 
+
+
+
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
