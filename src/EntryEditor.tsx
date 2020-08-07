@@ -1,14 +1,12 @@
 import * as React from "react";
-import { TextLink, Modal } from "@contentful/forma-36-react-components";
 import { EditorExtensionSDK } from "contentful-ui-extensions-sdk";
 import "@contentful/forma-36-react-components/dist/styles.css";
 import "@contentful/forma-36-fcss/dist/styles.css";
 import "./index.css";
-import { FieldGroupsEditor } from "./FieldGroupsEditor";
 import { CollapsibleFieldGroup } from "./CollapsibleFieldGroup";
 import { findUnassignedFields, AppContext, SDKContext } from "./shared";
 import { useAppState } from "./state";
-import { ActionTypes, FieldType } from "./types";
+import { FieldType } from "./types";
 import { Field } from "./Field";
 import styles from "./styles";
 
@@ -31,7 +29,7 @@ const Entry: React.FunctionComponent<AppProps> = (props: AppProps) => {
     props.sdk.contentType.fields,
     storageId(props.sdk),
     props.sdk.contentType.sys.updatedAt,
-    {}
+    props.sdk.parameters.installation
   );
 
   const unassignedFields = findUnassignedFields(state);

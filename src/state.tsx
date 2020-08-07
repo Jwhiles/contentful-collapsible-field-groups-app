@@ -102,7 +102,7 @@ export const useAppState = (
   fields: FieldType[],
   storageId: string,
   updatedAt: string | undefined,
-  storage: any
+  storage: { [key: string]: any }
 ): [
   React.ReducerState<React.Reducer<AppState, Action>>,
   React.Dispatch<Action>

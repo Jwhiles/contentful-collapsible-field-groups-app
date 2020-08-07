@@ -1,6 +1,6 @@
-import React from 'react';
-import { EditorExtensionSDK } from 'contentful-ui-extensions-sdk';
-import { AppState, FieldType, FieldGroupType, Action } from './types';
+import React from "react";
+import { EditorExtensionSDK } from "contentful-ui-extensions-sdk";
+import { AppState, FieldType, FieldGroupType, Action } from "./types";
 
 // UTILS
 export const findUnassignedFields = (appState: AppState): FieldType[] => {
@@ -21,4 +21,3 @@ export const AppContext = React.createContext<{
 }>(undefined!);
 // non null statement here is to avoid having to continually assert context
 // throughout the code
-

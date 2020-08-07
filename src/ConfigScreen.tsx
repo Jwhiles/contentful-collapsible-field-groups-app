@@ -4,29 +4,26 @@ import {
   Heading,
   Form,
   Workbench,
-  Select,
-  Option,
   TextLink,
   Modal,
+  Subheading,
+  Paragraph,
 } from "@contentful/forma-36-react-components";
 import { useAppState } from "./state";
 import { css } from "emotion";
 import { FieldGroupsEditor } from "./FieldGroupsEditor";
-import { ActionTypes, FieldType } from "./types";
-import { findUnassignedFields, AppContext, SDKContext } from "./shared";
+import { ActionTypes } from "./types";
+import { AppContext } from "./shared";
 import styles from "./styles";
-
-// export interface AppInstallationParameters {
-//
-// }
 
 interface ConfigProps {
   sdk: AppExtensionSDK;
 }
 
 interface ConfigState {
-  parameters: any;
+  parameters: { [key: string]: any };
   contentTypes: any[];
+  otherContentTypes: any[];
   selectedContentType: string;
 }
 
@@ -35,6 +32,7 @@ export default class Config extends Component<ConfigProps, ConfigState> {
     super(props);
     this.state = {
       contentTypes: [],
+      otherContentTypes: [],
       selectedContentType: "",
       parameters: {},
     };
@@ -62,36 +60,48 @@ export default class Config extends Component<ConfigProps, ConfigState> {
     };
 
     const entryIds: any = editorInterfaces.items.reduce(
-      (contentTypes, editorInterface: any) => {
+      (
+        acc: { contentTypes: string[]; others: string[] },
+        editorInterface: any
+      ) => {
         if (appIncludedInEditors(appId, editorInterface)) {
           const contentTypeId = editorInterface.sys?.contentType?.sys?.id;
-          return contentTypes.concat(contentTypeId);
+          acc.contentTypes.push(contentTypeId);
+        } else {
+          const contentTypeId = editorInterface.sys?.contentType?.sys?.id;
+          acc.others.push(contentTypeId);
         }
-        return contentTypes;
+        return acc;
       },
-      []
+      { contentTypes: [], others: [] }
     );
 
-    const entries = await Promise.all(
-      entryIds.map((id: string) => space.getContentType(id))
+    const contentTypes = await Promise.all(
+      entryIds.contentTypes.map((id: string) => space.getContentType(id))
     );
 
-    return entries;
+    const otherContentTypes = await Promise.all(
+      entryIds.others.map((id: string) => space.getContentType(id))
+    );
+
+    return { contentTypes, otherContentTypes };
   }
 
   async componentDidMount() {
     // Get current parameters of the app.
     // If the app is not installed yet, `parameters` will be `null`.
     const parameters: any | null = await this.props.sdk.app.getParameters();
-    const contentTypes = await this.getContentTypesUsingEditor();
-
-    console.log(this.props.sdk.parameters);
+    const {
+      contentTypes,
+      otherContentTypes,
+    } = await this.getContentTypesUsingEditor();
 
     this.setState(
       parameters
         ? {
             parameters,
             contentTypes,
+            otherContentTypes,
             selectedContentType: contentTypes[0]?.sys.id,
           }
         : this.state,
@@ -108,17 +118,44 @@ export default class Config extends Component<ConfigProps, ConfigState> {
       <Workbench className={css({ margin: "80px" })}>
         <Form>
           <Heading>Field Group Set Up Config</Heading>
-          {this.state.contentTypes.map((ct) => (
+          <Subheading>Content Types with collapsible editor</Subheading>
+          <Help />
+          {this.state.contentTypes.map((ct, idx) => (
             <div key={ct.id}>
               <Heading>{ct.name}</Heading>
-
-              <Whatever
+              <AssignedContentType
                 update={(result: any) => {
                   const parameters = { ...this.state.parameters, ...result };
                   this.setState({ parameters });
                 }}
                 contentType={ct}
                 parameters={this.state.parameters}
+                assignEditor={() => {
+                  const { contentTypes, otherContentTypes } = this.state;
+                  this.setState({
+                    otherContentTypes: otherContentTypes.concat([ct]),
+                    contentTypes: contentTypes
+                      .slice(0, idx)
+                      .concat(contentTypes.slice(idx + 1)),
+                  });
+                }}
+              />
+            </div>
+          ))}
+
+          {this.state.otherContentTypes.map((ct, idx) => (
+            <div key={ct.id}>
+              <Heading>{ct.name}</Heading>
+              <UnassignedContentType
+                assignEditor={() => {
+                  const { contentTypes, otherContentTypes } = this.state;
+                  this.setState({
+                    otherContentTypes: otherContentTypes
+                      .slice(0, idx)
+                      .concat(otherContentTypes.slice(idx + 1)),
+                    contentTypes: contentTypes.concat([ct]),
+                  });
+                }}
               />
             </div>
           ))}
@@ -128,38 +165,11 @@ export default class Config extends Component<ConfigProps, ConfigState> {
   }
 
   async onConfigure() {
-    const { space, ids } = this.props.sdk;
-    const editorInterfaces = await space.getEditorInterfaces();
+    const blah = this.state.contentTypes.map((ct) => ct.sys.id);
 
-    const appId = ids.app;
-
-    const appIncludedInEditors = (appId: any, editorInterface: any) => {
-      if (editorInterface.editor) {
-        return appId === editorInterface.editor.widgetId;
-      } else if (editorInterface.editors) {
-        return editorInterface.editors.some(
-          ({ widgetId }: any) => widgetId === appId
-        );
-      }
-    };
-
-    const contentTypesUsingApp = editorInterfaces.items.reduce(
-      (contentTypes, editorInterface: any) => {
-        if (appIncludedInEditors(appId, editorInterface)) {
-          const contentTypeId = editorInterface.sys?.contentType?.sys?.id;
-          return contentTypes.concat(contentTypeId);
-        }
-        return contentTypes;
-      },
-      []
-    );
-
-    const EditorInterface = contentTypesUsingApp.reduce(
-      (edInt, contentTypeId) => {
-        return { ...edInt, [contentTypeId]: { editor: true } };
-      },
-      {}
-    );
+    const EditorInterface = blah.reduce((edInt, contentTypeId) => {
+      return { ...edInt, [contentTypeId]: { editor: true } };
+    }, {});
 
     return {
       parameters: this.state.parameters,
@@ -170,7 +180,36 @@ export default class Config extends Component<ConfigProps, ConfigState> {
   }
 }
 
-const Whatever = ({ contentType, update, parameters }: any) => {
+const UnassignedContentType = ({
+  assignEditor,
+}: {
+  assignEditor: () => void;
+}) => {
+  return (
+    <div>
+      <TextLink
+        icon="ThumbUp"
+        className={styles.editGroupsButton}
+        onClick={assignEditor}
+      >
+        Use custom editor with this content type
+      </TextLink>
+      yo
+    </div>
+  );
+};
+
+const AssignedContentType = ({
+  contentType,
+  update,
+  parameters,
+  assignEditor,
+}: {
+  contentType: any;
+  update: any;
+  parameters: { [key: string]: any };
+  assignEditor: () => void;
+}) => {
   const contentId = contentType.sys.id;
   const spaceId = contentType.sys.space?.sys.id;
   const environmentId = contentType.sys.environment?.sys.id;
@@ -199,6 +238,13 @@ const Whatever = ({ contentType, update, parameters }: any) => {
       >
         Edit field groups
       </TextLink>
+      <TextLink
+        icon="Delete"
+        className={styles.editGroupsButton}
+        onClick={assignEditor}
+      >
+        Remove custom editor
+      </TextLink>
       <Modal size="large" isShown={dialogOpen} onClose={closeDialog}>
         {() => (
           <React.Fragment>
@@ -215,5 +261,29 @@ const Whatever = ({ contentType, update, parameters }: any) => {
         )}
       </Modal>
     </AppContext.Provider>
+  );
+};
+
+const Help = () => {
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+
+  return (
+    <div>
+      <TextLink onClick={() => setDialogOpen(true)}>Help</TextLink>
+      <Modal
+        size="large"
+        isShown={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+      >
+        {() => (
+          <React.Fragment>
+            <Modal.Header onClose={() => setDialogOpen(false)} title="Help" />
+            <Modal.Content>
+              <Paragraph>blah blah blah</Paragraph>
+            </Modal.Content>
+          </React.Fragment>
+        )}
+      </Modal>
+    </div>
   );
 };
