@@ -7,7 +7,6 @@ import {
   TextLink,
   Modal,
   Subheading,
-  Paragraph,
 } from "@contentful/forma-36-react-components";
 import { useAppState } from "./state";
 import { css } from "emotion";
@@ -21,6 +20,7 @@ interface ConfigProps {
 }
 
 interface ConfigState {
+  installed: boolean;
   parameters: { [key: string]: any };
   contentTypes: any[];
   otherContentTypes: any[];
@@ -31,6 +31,7 @@ export default class Config extends Component<ConfigProps, ConfigState> {
   constructor(props: ConfigProps) {
     super(props);
     this.state = {
+      installed: false,
       contentTypes: [],
       otherContentTypes: [],
       selectedContentType: "",
@@ -41,6 +42,7 @@ export default class Config extends Component<ConfigProps, ConfigState> {
     // invoked when a user attempts to install the app or update
     // its configuration.
     props.sdk.app.onConfigure(() => this.onConfigure());
+    props.sdk.app.onConfigurationCompleted(() => this.setup());
   }
 
   async getContentTypesUsingEditor(): Promise<any> {
@@ -87,7 +89,20 @@ export default class Config extends Component<ConfigProps, ConfigState> {
     return { contentTypes, otherContentTypes };
   }
 
-  async componentDidMount() {
+  async setup() {
+    const installed = await this.props.sdk.app.isInstalled();
+
+    if (!installed) {
+      this.setState(
+        {
+          installed: false,
+        },
+        () => {
+          this.props.sdk.app.setReady();
+        }
+      );
+    }
+
     // Get current parameters of the app.
     // If the app is not installed yet, `parameters` will be `null`.
     const parameters: any | null = await this.props.sdk.app.getParameters();
@@ -99,6 +114,7 @@ export default class Config extends Component<ConfigProps, ConfigState> {
     this.setState(
       parameters
         ? {
+            installed: true,
             parameters,
             contentTypes,
             otherContentTypes,
@@ -113,7 +129,19 @@ export default class Config extends Component<ConfigProps, ConfigState> {
     );
   }
 
+  async componentDidMount() {
+    return this.setup();
+  }
+
   render() {
+    if (!this.state.installed) {
+      return (
+        <Workbench className={css({ margin: "80px" })}>
+          <Heading>Install the app to configure</Heading>
+        </Workbench>
+      );
+    }
+
     return (
       <Workbench className={css({ margin: "80px" })}>
         <Form>

@@ -3,26 +3,26 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@contentful/field-editor-shared": "^0.11.0",
-    "@contentful/field-editor-single-line": "^0.8.4",
-    "@contentful/field-editor-number": "^0.8.4",
-    "@contentful/field-editor-boolean": "^0.8.4",
-    "@contentful/field-editor-date": "^0.8.4",
-    "@contentful/field-editor-location": "^0.8.4",
-    "@contentful/field-editor-json": "^0.8.4",
-    "@contentful/field-editor-multiple-line": "^0.8.4",
-    "@contentful/field-editor-tags": "^0.8.4",
-    "@contentful/field-editor-slug": "^0.8.4",
-    "@contentful/field-editor-dropdown": "^0.8.4",
-    "@contentful/field-editor-url": "^0.8.4",
-    "@contentful/field-editor-radio": "^0.8.4",
-    "@contentful/field-editor-rating": "^0.8.4",
-    "@contentful/field-editor-checkbox": "^0.8.4",
-    "@contentful/field-editor-list": "^0.8.4",
-    "@contentful/field-editor-reference": "^0.8.4",
-    "@contentful/field-editor-rich-text": "^0.8.4",
-    "@contentful/field-editor-markdown": "^0.8.4",
-    "@contentful/field-editor-test-utils": "^0.6.4",
+    "@contentful/field-editor-boolean": "^0.7.2",
+    "@contentful/field-editor-checkbox": "^0.9.2",
+    "@contentful/field-editor-date": "^0.6.2",
+    "@contentful/field-editor-dropdown": "^0.9.2",
+    "@contentful/field-editor-json": "^0.6.2",
+    "@contentful/field-editor-list": "^0.10.2",
+    "@contentful/field-editor-location": "^0.7.2",
+    "@contentful/field-editor-markdown": "^0.8.3",
+    "@contentful/field-editor-multiple-line": "^0.8.2",
+    "@contentful/field-editor-number": "^0.8.2",
+    "@contentful/field-editor-radio": "^0.8.2",
+    "@contentful/field-editor-rating": "^0.7.2",
+    "@contentful/field-editor-reference": "^1.0.2",
+    "@contentful/field-editor-rich-text": "^0.12.2",
+    "@contentful/field-editor-shared": "^0.11.1",
+    "@contentful/field-editor-single-line": "^0.9.2",
+    "@contentful/field-editor-slug": "^0.5.2",
+    "@contentful/field-editor-tags": "^0.8.3",
+    "@contentful/field-editor-test-utils": "^0.7.2",
+    "@contentful/field-editor-url": "^0.7.2",
     "@contentful/forma-36-fcss": "^0.0.35",
     "@contentful/forma-36-react-components": "^3.39.7",
     "@contentful/forma-36-tokens": "^0.5.3",
@@ -35,13 +35,14 @@
     "@types/react-dom": "^16.9.0",
     "contentful-cli": "1.4.11",
     "contentful-ui-extensions-sdk": "3.15.0",
+    "create-contentful-app": "^0.1.3",
+    "emotion": "^10.0.17",
+    "prop-types": "^15.7.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",
     "react-sortable-hoc": "^1.11.0",
-    "typescript": "^3.8.0",
-    "emotion": "^10.0.17",
-    "prop-types": "^15.7.2"
+    "typescript": "^3.8.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -49,7 +50,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "deploy": "echo implement this!!",
-    "configure": "contentful login && contentful space use && contentful space environment use",
+    "configure": "create-contentful-app create-definition",
     "login": "contentful login",
     "logout": "contentful logout",
     "help": "contentful-extension-scripts help"
@@ -58,7 +59,15 @@
     "extends": "react-app"
   },
   "browserslist": {
-    "production": [">0.2%", "not dead", "not op_mini all"],
-    "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }
