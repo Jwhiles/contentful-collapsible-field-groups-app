@@ -28,6 +28,7 @@ then navigate to the app management section of your contentful space and select 
 You will be presented with install screen - hit install at the top right of the screen, then you will be able to configure the app.
 
 
+------------------------------------------------------------------------------------------
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
