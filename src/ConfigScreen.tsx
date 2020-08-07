@@ -12,7 +12,7 @@ import {
 import { useAppState } from "./state";
 import { css } from "emotion";
 import { FieldGroupsEditor } from "./FieldGroupsEditor";
-import { ActionTypes } from "./types";
+import { ActionTypes, Parameters } from "./types";
 import { AppContext } from "./shared";
 import styles from "./styles";
 
@@ -20,11 +20,31 @@ interface ConfigProps {
   sdk: AppExtensionSDK;
 }
 
+interface ContentType {
+  name: string;
+  description: string;
+  fields: any[];
+  sys: {
+    updatedAt: string;
+    id: string;
+    environment: {
+      sys: {
+        id: string;
+      };
+    };
+    space: {
+      sys: {
+        id: string;
+      };
+    };
+  };
+}
+
 interface ConfigState {
   installed: boolean;
-  parameters: { [key: string]: any };
-  contentTypes: any[];
-  otherContentTypes: any[];
+  parameters: Parameters;
+  contentTypes: ContentType[];
+  otherContentTypes: ContentType[];
   selectedContentType: string;
 }
 
@@ -46,7 +66,10 @@ export default class Config extends Component<ConfigProps, ConfigState> {
     props.sdk.app.onConfigurationCompleted(() => this.setup());
   }
 
-  async getContentTypesUsingEditor(): Promise<any> {
+  async getContentTypesUsingEditor(): Promise<{
+    contentTypes: ContentType[];
+    otherContentTypes: ContentType[];
+  }> {
     const { space, ids } = this.props.sdk;
     const editorInterfaces = await space.getEditorInterfaces();
 
@@ -79,12 +102,14 @@ export default class Config extends Component<ConfigProps, ConfigState> {
       { contentTypes: [], others: [] }
     );
 
-    const contentTypes = await Promise.all(
-      entryIds.contentTypes.map((id: string) => space.getContentType(id))
+    const contentTypes: ContentType[] = await Promise.all(
+      entryIds.contentTypes.map((id: string) =>
+        space.getContentType<ContentType>(id)
+      )
     );
 
-    const otherContentTypes = await Promise.all(
-      entryIds.others.map((id: string) => space.getContentType(id))
+    const otherContentTypes: ContentType[] = await Promise.all(
+      entryIds.others.map((id: string) => space.getContentType<ContentType>(id))
     );
 
     return { contentTypes, otherContentTypes };
@@ -106,7 +131,7 @@ export default class Config extends Component<ConfigProps, ConfigState> {
 
     // Get current parameters of the app.
     // If the app is not installed yet, `parameters` will be `null`.
-    const parameters: any | null = await this.props.sdk.app.getParameters();
+    const parameters: Parameters | null = await this.props.sdk.app.getParameters();
     const {
       contentTypes,
       otherContentTypes,
@@ -148,32 +173,34 @@ export default class Config extends Component<ConfigProps, ConfigState> {
         <Form>
           <Heading>Field Group Set Up Config</Heading>
           <Subheading>Content Types with collapsible editor:</Subheading>
-          {this.state.contentTypes.map((ct, idx) => (
-            <div key={ct.id}>
-              <SectionHeading>{ct.name}</SectionHeading>
-              <AssignedContentType
-                update={(result: any) => {
-                  const parameters = { ...this.state.parameters, ...result };
-                  this.setState({ parameters });
-                }}
-                contentType={ct}
-                parameters={this.state.parameters}
-                assignEditor={() => {
-                  const { contentTypes, otherContentTypes } = this.state;
-                  this.setState({
-                    otherContentTypes: otherContentTypes.concat([ct]),
-                    contentTypes: contentTypes
-                      .slice(0, idx)
-                      .concat(contentTypes.slice(idx + 1)),
-                  });
-                }}
-              />
-            </div>
-          ))}
+          {this.state.contentTypes.map((ct, idx) => {
+            return (
+              <div key={ct.sys.id}>
+                <SectionHeading>{ct.name}</SectionHeading>
+                <AssignedContentType
+                  update={(result: Parameters) => {
+                    const parameters = { ...this.state.parameters, ...result };
+                    this.setState({ parameters });
+                  }}
+                  contentType={ct}
+                  parameters={this.state.parameters}
+                  assignEditor={() => {
+                    const { contentTypes, otherContentTypes } = this.state;
+                    this.setState({
+                      otherContentTypes: otherContentTypes.concat([ct]),
+                      contentTypes: contentTypes
+                        .slice(0, idx)
+                        .concat(contentTypes.slice(idx + 1)),
+                    });
+                  }}
+                />
+              </div>
+            );
+          })}
 
           <Subheading>Other Content Types:</Subheading>
           {this.state.otherContentTypes.map((ct, idx) => (
-            <div key={ct.id}>
+            <div key={ct.sys.id}>
               <SectionHeading>{ct.name}</SectionHeading>
               <UnassignedContentType
                 assignEditor={() => {
@@ -233,9 +260,9 @@ const AssignedContentType = ({
   parameters,
   assignEditor,
 }: {
-  contentType: any;
-  update: any;
-  parameters: { [key: string]: any };
+  contentType: ContentType;
+  update: (parameters: Parameters) => void;
+  parameters: Parameters;
   assignEditor: () => void;
 }) => {
   const contentId = contentType.sys.id;

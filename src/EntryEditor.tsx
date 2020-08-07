@@ -6,7 +6,7 @@ import "./index.css";
 import { CollapsibleFieldGroup } from "./CollapsibleFieldGroup";
 import { findUnassignedFields, AppContext, SDKContext } from "./shared";
 import { useAppState } from "./state";
-import { FieldType } from "./types";
+import { FieldType, Parameters } from "./types";
 import { Field } from "./Field";
 import styles from "./styles";
 
@@ -29,7 +29,7 @@ const Entry: React.FunctionComponent<AppProps> = (props: AppProps) => {
     props.sdk.contentType.fields,
     storageId(props.sdk),
     props.sdk.contentType.sys.updatedAt,
-    props.sdk.parameters.installation
+    props.sdk.parameters.installation as Parameters
   );
 
   const unassignedFields = findUnassignedFields(state);
