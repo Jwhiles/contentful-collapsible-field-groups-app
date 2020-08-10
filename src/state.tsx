@@ -6,6 +6,7 @@ import {
   FieldType,
   FieldGroupType,
   AppState,
+  Parameters,
 } from "./types";
 
 const createId = (): string => {
@@ -102,7 +103,7 @@ export const useAppState = (
   fields: FieldType[],
   storageId: string,
   updatedAt: string | undefined,
-  storage: { [key: string]: any }
+  storage: Parameters
 ): [
   React.ReducerState<React.Reducer<AppState, Action>>,
   React.Dispatch<Action>
