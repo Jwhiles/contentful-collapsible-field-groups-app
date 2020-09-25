@@ -40,12 +40,12 @@ init((sdk: BaseExtensionSDK) => {
   const root = document.getElementById("root");
 
   if (sdk.location.is(locations.LOCATION_APP_CONFIG)) {
-    renderAtRoot(<Config sdk={sdk as AppExtensionSDK} />);
+    renderAtRoot(<Config sdk={(sdk as unknown) as AppExtensionSDK} />);
   } else if (sdk.location.is(locations.LOCATION_ENTRY_EDITOR)) {
     // Depending on the location the SDK will have different methods
-    render(<EntryEditor sdk={sdk as EditorExtensionSDK} />, root);
+    render(<EntryEditor sdk={(sdk as unknown) as EditorExtensionSDK} />, root);
   } else if (sdk.location.is(locations.LOCATION_DIALOG)) {
-    const dialogSdk = sdk as DialogExtensionSDK;
+    const dialogSdk = (sdk as unknown) as DialogExtensionSDK;
     const invocationParams = sdk.parameters.invocation as { type: string };
     if (invocationParams.type.startsWith("markdown")) {
       renderAtRoot(renderMarkdownDialog(dialogSdk as any));

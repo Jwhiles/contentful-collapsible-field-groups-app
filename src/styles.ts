@@ -55,18 +55,6 @@ const styles = {
     paddingTop: tokens.spacingL
   }),
 
-  fieldWrapper: css({
-    marginLeft: tokens.spacingL,
-    marginRight: tokens.spacingL,
-    borderLeft: '3px solid #c5d2d8',
-    paddingLeft: '1em',
-    marginBottom: '29px',
-    marginTop: '19px',
-    transition: 'border-color 0.18s linear',
-    '&:focus-within': {
-      borderColor: tokens.colorPrimary
-    }
-  }),
 
   cardInfo: css({ display: 'flex', alignItems: 'center' }),
   controls: css({
