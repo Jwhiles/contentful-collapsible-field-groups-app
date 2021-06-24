@@ -16,22 +16,6 @@ import { renderRichTextDialog } from "@contentful/field-editor-rich-text";
 import EntryEditor from "./EntryEditor";
 import Config from "./ConfigScreen";
 
-interface AppProps {
-  sdk: EditorExtensionSDK;
-}
-
-interface AppInstallationParameters {
-  defaultValue: string;
-}
-
-interface ConfigProps {
-  sdk: AppExtensionSDK;
-}
-
-interface ConfigState {
-  parameters: AppInstallationParameters;
-}
-
 function renderAtRoot(element: JSX.Element) {
   render(element, document.getElementById("root"));
 }
